@@ -52,6 +52,40 @@ describe('datatypes', function() {
     });
     Account.definition.properties.item.type.should.not.equal(String);
   });
+  it('should resolve nested prop with connector specific type', function() {
+    const model = db.define('test', {
+      randomReview: {
+        type: [
+          {
+            type: 'string',
+            mongodb: {
+              dataType: 'Decimal128',
+            },
+          },
+        ],
+      },
+    });
+    model.definition.properties.randomReview.type.should.deepEqual(Array(String));
+    model.definition.properties.randomReview.mongodb.should.deepEqual({dataType: 'Decimal128'});
+  });
+
+  it('should coerce array of primitive types from string', async () => {
+    const dateArrayModel = db.define('dateArrayModel', {
+      bunchOfDates: [
+        {
+          type: Date,
+        },
+      ],
+    });
+    const dateVal = new Date('2019-02-21T12:00:00').toISOString();
+    const created = await dateArrayModel.create({
+      bunchOfDates: [dateVal,
+        dateVal,
+        dateVal],
+    });
+    created.bunchOfDates[0].should.be.an.instanceOf(Date);
+    created.bunchOfDates[0].should.equal(Date(dateVal));
+  });
 
   it('should return 400 when property of type array is set to string value',
     function(done) {
