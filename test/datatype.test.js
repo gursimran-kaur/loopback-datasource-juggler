@@ -52,17 +52,13 @@ describe('datatypes', function() {
     });
     Account.definition.properties.item.type.should.not.equal(String);
   });
-  it('should resolve nested prop with connector specific type', function() {
+  it('should resolve array prop with connector specific metadata', function() {
     const model = db.define('test', {
       randomReview: {
-        type: [
-          {
-            type: 'string',
-            mongodb: {
-              dataType: 'Decimal128',
-            },
-          },
-        ],
+        type: [String],
+        mongodb: {
+          dataType: 'Decimal128',
+        },
       },
     });
     model.definition.properties.randomReview.type.should.deepEqual(Array(String));
