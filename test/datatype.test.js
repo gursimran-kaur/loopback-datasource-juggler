@@ -65,22 +65,40 @@ describe('datatypes', function() {
     model.definition.properties.randomReview.mongodb.should.deepEqual({dataType: 'Decimal128'});
   });
 
-  it('should coerce array of primitive types from string', async () => {
+  it('should coerce array of dates from string', async () => {
     const dateArrayModel = db.define('dateArrayModel', {
-      bunchOfDates: [
-        {
-          type: Date,
-        },
-      ],
+      bunchOfDates: [Date],
+      bunchOfOtherDates: {
+        type: [Date],
+      },
     });
     const dateVal = new Date('2019-02-21T12:00:00').toISOString();
     const created = await dateArrayModel.create({
       bunchOfDates: [dateVal,
         dateVal,
         dateVal],
+      bunchOfOtherDates: [dateVal,
+        dateVal,
+        dateVal],
     });
     created.bunchOfDates[0].should.be.an.instanceOf(Date);
-    created.bunchOfDates[0].should.equal(Date(dateVal));
+    created.bunchOfDates[0].should.deepEqual(new Date(dateVal));
+    created.bunchOfOtherDates[0].should.be.an.instanceOf(Date);
+    created.bunchOfOtherDates[0].should.deepEqual(new Date(dateVal));
+  });
+
+  it('should coerce array of numbers from string', async () => {
+    const numArrayModel = db.define('numArrayModel', {
+      bunchOfNums: [Number],
+    });
+    const dateVal = new Date('2019-02-21T12:00:00').toISOString();
+    const created = await numArrayModel.create({
+      bunchOfNums: ['1',
+        '2',
+        '3'],
+    });
+    created.bunchOfNums[0].should.be.an.instanceOf(Number);
+    created.bunchOfNums[0].should.equal(1);
   });
 
   it('should return 400 when property of type array is set to string value',
